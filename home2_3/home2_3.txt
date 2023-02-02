@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS employees (
+id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+surname VARCHAR (255) NOT NULL,
+birthdate DATA NOT NULL,
+grade grade_type NOT NULL,
+salary INT,
+department_id INT,
+drive_license BOOLEAN,
+CONSTRAINT department_fk
+	FOREIGN KEY (department_id)
+	REFERENCES departments(id)
+	ON DELETE CASCADE)
