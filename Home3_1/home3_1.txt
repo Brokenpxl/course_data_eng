@@ -1,0 +1,11 @@
+
+hdfs dfs -getmerge /user/cloudera/vim1.txt /user/cloudera/vim2.txt /output.txt
+hdfs dfs -chmod 764 vim1.txt
+hdfs dfs -chmod 764 vim2.txt
+hdfs dfs -chmod 764 vim3.txt
+hdfs dfs -chmod 764 vim4.txt
+hdfs dfs -ls
+
+hdfs dfs -du -h vim1.txt
+hdfs dfs -setrep -R -w 2 vim1.txt
+hdfs dfs -cat vim2.txt | wc -l
