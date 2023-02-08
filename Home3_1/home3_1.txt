@@ -1,11 +1,25 @@
 
-hdfs dfs -getmerge /user/cloudera/vim1.txt /user/cloudera/vim2.txt /output.txt
+#склейка файла
+hdfs dfs -getmerge /user/cloudera/vim1.txt /user/cloudera/vim2.txt /home/cloudera/Desktop/output.txt
+Склеелись 2 файла
+
+#права доступа
 hdfs dfs -chmod 764 vim1.txt
 hdfs dfs -chmod 764 vim2.txt
 hdfs dfs -chmod 764 vim3.txt
 hdfs dfs -chmod 764 vim4.txt
 hdfs dfs -ls
+Found 4 items
+-rwxrw-r--   2 cloudera cloudera     736519 2023-02-01 11:36 vim1.txt
+-rwxrw-r--   1 cloudera cloudera     770324 2023-02-01 11:37 vim2.txt
+-rwxrw-r--   1 cloudera cloudera     843205 2023-02-01 11:37 vim3.txt
+-rwxrw-r--   1 cloudera cloudera     697960 2023-02-01 11:37 vim4.txt
 
-hdfs dfs -du -h vim1.txt
+#резервная копия
 hdfs dfs -setrep -R -w 2 vim1.txt
+hdfs dfs -du -h vim1.txt
+719.3 K  1.4 M  vim1.txt
+
+#Напишите команду, которая подсчитывает количество строк в вашем файле
 hdfs dfs -cat vim2.txt | wc -l
+3294
