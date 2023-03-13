@@ -1,0 +1,67 @@
+from pyspark.sql import SparkSession
+import pyspark.sql.types as T
+import pyspark.sql.functions as F
+from pyspark.sql.functions import udf
+import datetime
+
+spark = SparkSession.builder.master("local").\
+                    appName("Home_3_3").\
+                    config("spark.driver.bindAdress","localhost").\
+                    config("spark.ui.port","4040").\
+                    getOrCreate()
+					
+schema_site = T.StructType ([
+                T.StructField("id", T.StringType(), True),
+                T.StructField("timestamp", T.LongType(), True),
+                T.StructField("type", T.StringType(), True),
+                T.StructField("page_id", T.IntegerType(), True),
+                T.StructField("tag", T.StringType(), True),
+                T.StructField("sign", T.BooleanType(), True)]
+)
+
+schema_lk = T.StructType([
+                T.StructField("id", T.StringType(), True),
+                T.StructField("user_id", T.IntegerType(), True),
+                T.StructField("fio", T.StringType(), True),
+                T.StructField("dob", T.DateType(), True),
+                T.StructField("doc", T.DateType(), True)])	
+
+data_site = [(1, 1667627426, "click", 101, 'Sport', True),
+        (1, 1673593269, "visit", 101, 'Game', True),
+        (2, 1676369284, "scroll", 102, 'Sport', False),
+        (2, 1673766249, "click", 103, 'Game', False),
+        (2, 1610694249, "visit", 104, 'Sport', False),
+        (2, 1642230249, "scroll", 105, 'Movie', False),
+        (2, 1642057449, "click", 101, 'Game', False),
+        (3, 1641884649, "visit", 101, 'Sport', True),
+        (3, 1641971049, "scroll", 102, 'Movie', True),
+        (3, 1641798249, "click", 107, 'Game', True),
+        (3, 1641801849, "visit", 106, 'Sport', True),
+        (4, 1641801791, "scroll", 105, 'Movie', False),
+        (4, 1659945791, "click", 104, 'Game', False),
+        (5, 1641628991, "visit", 103, 'Sport', True),
+        (6, 1662624191, "scroll", 101, 'Game', False),
+        (6, 1665216191, "visit", 102, 'Movie', False),
+        (6, 1670486591, "click", 102, 'Game', False)]
+
+data_lk = [(101, 1, "Иванов Иван Иванович", datetime.datetime(1990, 7, 21), datetime.datetime(2022, 7, 8)),
+           (102, 3, "Максимов Максим Максимович", datetime.datetime(1991, 8, 14), datetime.datetime(2021, 1, 3)),
+           (103, 5, "Брежнева Вераника Григорьевна", datetime.datetime(1989, 3, 5), datetime.datetime(2021, 2, 6))
+          ]
+
+df_site = spark.createDataFrame (data=data_site, schema = schema_site)
+df_lk = spark.createDataFrame (data = data_lk, schema = schema_lk)		  
+
+df_site = df_site.select(*[i for i in df_site.columns if i != "timestamp"],
+    F.from_unixtime("timestamp").alias("event_time"))
+	
+print("топ-5 самых активных посетителей сайта")
+df_site.groupby("id").count().orderBy("count", ascending = False).show(5)
+
+print("процент посетителей, у которых есть ЛК")
+df_site.groupby("sign").count() / len(df_site.count)
+
+print("диапазона в рамках суток с размером окна")
+df_site.withColumn("new", F.floor(F.hour("event_time") / F.lit(4))).show(5)
+
+	
